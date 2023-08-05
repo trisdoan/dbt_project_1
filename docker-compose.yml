@@ -1,0 +1,209 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+# Basic Airflow cluster configuration for CeleryExecutor with Redis and PostgreSQL.
+#
+# WARNING: This configuration is for local development. Do not use it in a production deployment.
+#
+# This configuration supports basic configuration using environment variables or an .env file
+# The following variables are supported:
+#
+# AIRFLOW_IMAGE_NAME         - Docker image name used to run Airflow.
+#                              Default: apache/airflow:master-python3.8
+# AIRFLOW_UID                - User ID in Airflow containers
+#                              Default: 50000
+# AIRFLOW_GID                - Group ID in Airflow containers
+#                              Default: 50000
+# _AIRFLOW_WWW_USER_USERNAME - Username for the administrator account.
+#                              Default: airflow
+# _AIRFLOW_WWW_USER_PASSWORD - Password for the administrator account.
+#                              Default: airflow
+#
+# Feel free to modify this file to suit your needs.
+---
+
+version: '3'
+x-airflow-common:
+  &airflow-common
+  build:
+    context: ./container/airflow/
+  environment:
+    &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://warehouse:warehouse1234@warehouse_db/warehouse_db
+    AIRFLOW__CORE__FERNET_KEY: ''
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__API__AUTH_BACKEND: 'airflow.api.auth.backend.basic_auth'
+    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+    - ./temp:/opt/airflow/temp
+  user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
+  depends_on:
+    warehouse_db:
+      condition: service_healthy
+  networks:
+      - dbt_network
+
+services:
+  airflow-webserver:
+    <<: *airflow-common
+    container_name: webserver
+    command: webserver
+    networks:
+      - dbt_network
+    ports:
+      - 8080:8080
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "--fail",
+          "http://localhost:8080/health"
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
+
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: scheduler
+    command: scheduler
+    networks:
+      - dbt_network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'airflow jobs check --job-type SchedulerJob --hostname "$${HOSTNAME}"'
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
+
+  airflow-init:
+    <<: *airflow-common
+    command: version
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_DB_UPGRADE: 'true'
+      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
+      _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
+  
+  customer_db:
+    container_name: customer_db
+    image: postgres:13
+    environment:
+      POSTGRES_USER: customer
+      POSTGRES_PASSWORD: customer1234
+      POSTGRES_DB: customer_db
+    volumes:
+      - ./container/customer_db/:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "customer"]
+      interval: 5s
+      retries: 5
+    restart: always
+    networks:
+      - dbt_network
+    ports:
+      - "5432:5432"
+
+  cloud-store:
+    image: quay.io/minio/minio
+    container_name: cloud-store
+    environment:
+      MINIO_ROOT_USER: AKIAIOSFODNN7EXAMPLE
+      MINIO_ROOT_PASSWORD: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+    command: server /data --console-address ":9001"
+    ports:
+      - 9000:9000
+      - 9001:9001
+    networks:
+      - dbt_network
+
+  data_generator:
+    build:
+      context: .
+      dockerfile: ./container/datagenerator/Dockerfile
+    entrypoint:
+      - python
+      - ./generate_fake_data.py
+    container_name: data_generator
+    restart: on-failure
+    networks:
+      - dbt_network
+    depends_on:
+      - customer_db
+      - cloud-store
+  
+  dashboard:
+    image: metabase/metabase
+    container_name: dashboard
+    ports:
+      - "3001:3000"
+    networks:
+      - dbt_network
+      
+  warehouse_db:
+    container_name: warehouse_db
+    image: postgres:13
+    environment:
+      POSTGRES_USER: warehouse
+      POSTGRES_PASSWORD: warehouse1234
+      POSTGRES_DB: warehouse_db
+    volumes:
+      - ./temp:/temp
+      - ./container/warehouse/:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "warehouse"]
+      interval: 5s
+      retries: 5
+    restart: always
+    networks:
+      - dbt_network
+    ports:
+      - "5433:5433"
+
+  
+  # loader:
+  #   image: loader
+  #   container_name: loader
+  #   build:
+  #     context: ./container/loader/
+  #   volumes:
+  #     - ./:/opt/dbt_project_1
+  #   networks:
+  #     - dbt_network
+
+volumes:
+  postgres-db-volume:
+
+networks:
+  dbt_network:
+    driver: bridge
+    name: dbt_network
+
+
