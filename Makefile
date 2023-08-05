@@ -1,8 +1,11 @@
 perms:
 	mkdir -p logs plugins temp && sudo chmod -R u=rwx,g=rwx,o=rwx logs plugins dags temp
 
-up:
+docker-up:
 	docker compose up airflow-init && docker compose up --build -d
+
+up: perms docker-up
+	
 
 down:
 	docker compose down --volumes --rmi all --remove-orphans

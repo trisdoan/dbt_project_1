@@ -27,29 +27,29 @@ dag = DAG(
 )
 
 
-extract_order_data = PythonOperator(
+extract_order_data_from_s3 = PythonOperator(
     dag=dag,
     task_id="extract_order_data",
-    python_callable="extract_order_data"
+    python_callable=extract_order_data
 )
 
 load_order_data_to_warehouse = PythonOperator(
     dag=dag,
     task_id="load_order_data_to_warehouse",
-    python_callable="load_order_data"
+    python_callable=load_order_data
 )
 
 
-extract_customer_data = PythonOperator(
+extract_customer_data_db = PythonOperator(
     dag=dag,
     task_id="extract_customer_data",
-    python_callable="extract_customer_data"
+    python_callable=extract_customer_data
 )
 
 load_customer_data_to_warehouse = PythonOperator(
     dag=dag,
     task_id="load_customer_data_to_warehouse",
-    python_callable="load_customer_data"
+    python_callable=load_customer_data
 )
 
 
