@@ -17,7 +17,7 @@ run-etl:
 	docker exec loader python extract_data.py
 
 warehouse:
-	docker exec -ti warehouse_db psql postgres://warehouse:warehouse1234@localhost:5432/warehouse_db
+	docker exec -ti warehouse_db psql postgres://warehouse:warehouse1234@localhost:5433/warehouse_db
 
 customerdb:
 	docker exec -ti customer_db psql postgres://customer:customer1234@localhost:5432/customer_db

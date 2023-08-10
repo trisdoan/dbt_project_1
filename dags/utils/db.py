@@ -4,7 +4,7 @@ from contextlib import contextmanager
 class WarehouseConnection:
     def __init__(self) -> None:
         self.conn_url = (
-            "postgresql://warehouse:warehouse1234@warehouse_db:5432/warehouse_db"
+            "postgresql://warehouse:warehouse1234@warehouse_db:5433/warehouse_db"
         )
     
     @contextmanager

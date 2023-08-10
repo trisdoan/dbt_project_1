@@ -1,0 +1,15 @@
+config:
+  send_anonymous_usage_stats: False
+
+dbt_project:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      threads: 1
+      host: warehouse_db
+      port: 5433
+      user: warehouse
+      pass: warehouse1234
+      dbname: warehouse_db
+      schema: public

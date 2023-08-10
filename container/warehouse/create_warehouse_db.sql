@@ -15,9 +15,3 @@ CREATE TABLE orders (
     item_name VARCHAR(150),
     delivered_on VARCHAR(50)
 );
-
-CREATE TABLE states (
-    state_identifier INTEGER,
-    state_code VARCHAR(2),
-    st_name VARCHAR(30)
-);
