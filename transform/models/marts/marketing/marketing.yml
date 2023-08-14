@@ -5,7 +5,7 @@ models:
     columns:
       - name: customer_id
         tests:
-          - not null
+          - not_null
       - name: order_id
         tests:
           - unique

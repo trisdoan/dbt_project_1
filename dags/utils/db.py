@@ -1,12 +1,12 @@
-import psycopg2
 from contextlib import contextmanager
+
+import psycopg2
+
 
 class WarehouseConnection:
     def __init__(self) -> None:
-        self.conn_url = (
-            "postgresql://warehouse:warehouse1234@warehouse_db:5433/warehouse_db"
-        )
-    
+        self.conn_url = "postgresql://warehouse:warehouse1234@warehouse_db:5432/warehouse_db"
+
     @contextmanager
     def managed_cursor(self, cursor_factory=None):
         self.conn = psycopg2.connect(self.conn_url)
@@ -18,12 +18,13 @@ class WarehouseConnection:
             self.curr.close()
             self.conn.close()
 
+
 class CustomerDBConnection:
     def __init__(self) -> None:
         self.conn_url = (
             "postgresql://customer:customer1234@customer_db:5432/customer_db"
         )
-    
+
     @contextmanager
     def managed_cursor(self, cursor_factory=None):
         self.conn = psycopg2.connect(self.conn_url)

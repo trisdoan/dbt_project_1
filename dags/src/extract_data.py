@@ -1,8 +1,7 @@
 import boto3
 import psycopg2.extras as p
-
 from utils.config import get_aws_creds
-from utils.db import WarehouseConnection, CustomerDBConnection
+from utils.db import CustomerDBConnection, WarehouseConnection
 
 
 def extract_order_data():
@@ -11,22 +10,25 @@ def extract_order_data():
 
     def get_last_modified(obj):
         return int(obj["LastModified"].strftime("%s"))
-    
+
     last_added = [
         obj["Key"] for obj in sorted(objs, key=get_last_modified, reverse=True)
     ][0]
 
-    obj = s3.get_object(
-        Bucket="app-orders", Key=last_added
-    )
+    obj = s3.get_object(Bucket="app-orders", Key=last_added)
     data = obj['Body'].read().decode("utf-8")
 
     orders = []
 
     for line in data.split("\n")[:-1]:
-        order_id, customer_id, item_id, item_name, delivered_on = str(
-            line
-        ).split(",")
+        (
+            order_id,
+            customer_id,
+            item_id,
+            item_name,
+            delivered_on,
+            order_status
+        ) = str(line).split(",")
         orders.append(
             {
                 "order_id": order_id,
@@ -34,6 +36,7 @@ def extract_order_data():
                 "item_id": item_id,
                 "item_name": item_name,
                 "delivered_on": delivered_on,
+                "order_status": order_status,
             }
         )
     return orders
@@ -46,18 +49,21 @@ def load_order_data(order_data):
         customer_id,
         item_id,
         item_name,
-        delivered_on
+        delivered_on,
+        order_status
     )
     VALUES (
         %(order_id)s,
         %(customer_id)s,
         %(item_id)s,
         %(item_name)s,
-        %(delivered_on)s
+        %(delivered_on)s,
+        %(order_status)s
     )
     """
     with WarehouseConnection().managed_cursor() as curr:
         p.execute_batch(curr, insert_query, order_data)
+
 
 def extract_customer_data():
     with CustomerDBConnection().managed_cursor() as curr:
@@ -80,15 +86,16 @@ def extract_customer_data():
         customer_data = curr.fetchall()
     return [
         {
-            "customer_id":str(d[0]), 
-            "first_name":str(d[1]),
+            "customer_id": str(d[0]),
+            "first_name": str(d[1]),
             "last_name": str(d[2]),
             "state_code": str(d[3]),
             "datetime_created": str(d[4]),
-            "datetime_updated":str(d[5])
+            "datetime_updated": str(d[5]),
         }
         for d in customer_data
     ]
+
 
 def load_customer_data(customer_data):
     insert_query = """

@@ -51,13 +51,15 @@ x-airflow-common:
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__API__AUTH_BACKEND: 'airflow.api.auth.backend.basic_auth'
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
-    AIRFLOW_DBT_PROJECT_DIR: '/opt/airflow/dbt_project'
+    AIRFLOW_VAR_DBT_PROFILES_DIR: '/opt/airflow/.dbt'
   volumes:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
     - ./temp:/opt/airflow/temp
-    - ./dbt_project:/opt/airflow/dbt_project
+    - ./transform:/opt/airflow/transform
+    - ./.dbt:/opt/airflow/.dbt
+    - ./transform/logs/:/opt/airflow/transform/logs
   user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
   depends_on:
     warehouse_db:
@@ -180,6 +182,7 @@ services:
     volumes:
       - ./temp:/temp
       - ./container/warehouse/:/docker-entrypoint-initdb.d
+      - ./data:/input_data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "warehouse"]
       interval: 5s
@@ -187,9 +190,18 @@ services:
     restart: always
     networks:
       - dbt_network
-    ports:
-      - "5433:5433"
 
+  
+  formatter:
+    image: formatter
+    container_name: formatter
+    build:
+      context: .
+      dockerfile: ./container/formatter/Dockerfile
+    volumes:
+      - ./:/code
+    networks:
+      - dbt_network
   
   # loader:
   #   image: loader

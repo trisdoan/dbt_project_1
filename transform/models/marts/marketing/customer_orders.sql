@@ -10,7 +10,9 @@ select
     o.order_id,
     o.customer_id,
     o.item_name,
-    delivered_on
+    o.delivered_on,
+    o.order_status,
+    c.state_name as customer_state_name
 from orders o
 join customers c on o.customer_id = c.customer_id
                     and o.delivered_on >= c.valid_from

@@ -9,8 +9,8 @@ renamed as (
         first_name,
         last_name,
         state_code,
-        datetime_created::TIMESTAMP AS datetime_created,
-        datetime_updated::TIMESTAMP AS datetime_updated,
+        TO_TIMESTAMP(datetime_created, 'YY-MM-DD HH24:MI:ss') as datetime_created,
+        TO_TIMESTAMP(datetime_updated, 'YY-MM-DD HH24:MI:ss') as datetime_updated,
         dbt_valid_from,
         dbt_valid_to
     from source

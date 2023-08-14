@@ -1,4 +1,4 @@
-{{% snapshot customers_snapshot %}}
+{% snapshot customers_snapshot %}
 
 {{
     config(
@@ -11,6 +11,6 @@
     )
 }}
 
-select * from {{ source('public', 'customers')}}
+select * from {{ source('warehouse_db', 'customers')}}
 
 {% endsnapshot %}

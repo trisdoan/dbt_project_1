@@ -1,4 +1,3 @@
 psycopg2-binary
-boto3
 apache-airflow-client==2.3.0
-dbt-postgres==1.1.0
+dbt==0.19

@@ -1,6 +1,6 @@
 with source as (
     select *
-    from {{ source('public', 'orders')}}
+    from {{ source('warehouse_db','orders')}}
 ),
 
 renamed as (
@@ -9,9 +9,9 @@ renamed as (
         customer_id,
         item_id,
         item_name,
-        delivered_on::TIMESTAMP,
+        TO_TIMESTAMP(delivered_on, 'YY-MM-DD HH24:MI:ss') as delivered_on,
+        order_status
     from source
 )
-
 select *
 from renamed
