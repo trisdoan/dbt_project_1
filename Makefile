@@ -1,5 +1,5 @@
 perms:
-	mkdir -p logs plugins temp ./transform/logs ./transform/target ./transform/dbt_modules && sudo chmod -R u=rwx,g=rwx,o=rwx logs plugins dags temp ./transform/logs ./transform/target ./transform/dbt_modules
+	sudo mkdir -p logs plugins temp ./transform/logs ./transform/target ./transform/dbt_modules && sudo chmod -R u=rwx,g=rwx,o=rwx logs plugins dags temp ./transform/logs ./transform/target ./transform/dbt_modules
 
 docker-up:
 	docker compose up airflow-init && docker compose up --build -d
@@ -64,7 +64,7 @@ cloud-airflow:
 	terraform -chdir=./terraform output -raw private_key > private_key.pem && chmod 600 private_key.pem && ssh -o "IdentitiesOnly yes" -i private_key.pem ubuntu@$$(terraform -chdir=./terraform output -raw ec2_public_dns) -N -f -L 8080:$$(terraform -chdir=./terraform output -raw ec2_public_dns):8080 && open http://localhost:8080 && rm private_key.pem
 
 cloud-metabase:
-	terraform -chdir=./terraform output -raw private_key > private_key.pem && chmod 600 private_key.pem && ssh -o "IdentitiesOnly yes" -i private_key.pem ubuntu@$$(terraform -chdir=./terraform output -raw ec2_public_dns) -N -f -L 3000:$$(terraform -chdir=./terraform output -raw ec2_public_dns):3000 && open http://localhost:3000 && rm private_key.pem
+	terraform -chdir=./terraform output -raw private_key > private_key.pem && chmod 600 private_key.pem && ssh -o "IdentitiesOnly yes" -i private_key.pem ubuntu@$$(terraform -chdir=./terraform output -raw ec2_public_dns) -N -f -L 3000:$$(terraform -chdir=./terraform output -raw ec2_public_dns):3001 && open http://localhost:3000 && rm private_key.pem
 
 
 

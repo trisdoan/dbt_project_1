@@ -79,6 +79,7 @@ resource "aws_instance" "dbt_ec2" {
 
   key_name        = aws_key_pair.generated_key.key_name
   security_groups = [aws_security_group.dbt_security_group.name]
+  
   tags = {
     Name = "dbt_ec2"
   }
@@ -94,8 +95,6 @@ ca-certificates \
 curl \
 gnupg \
 lsb-release
-
-sudo apt -y install unzip
 
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 
