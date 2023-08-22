@@ -5,7 +5,7 @@ output "aws_region" {
 
 output "ec2_public_dns" {
   description = "EC2 public dns."
-  value       = aws_instance.sde_ec2.public_dns
+  value       = aws_instance.dbt_ec2.public_dns
 }
 
 output "private_key" {

@@ -78,7 +78,7 @@ resource "aws_instance" "dbt_ec2" {
   instance_type = var.instance_type
 
   key_name        = aws_key_pair.generated_key.key_name
-  security_groups = [aws_security_group.sde_security_group.name]
+  security_groups = [aws_security_group.dbt_security_group.name]
   tags = {
     Name = "dbt_ec2"
   }
