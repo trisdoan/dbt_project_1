@@ -7,7 +7,7 @@ The goal of the project is to learn how to run a proper batch data pipeline (ELT
 
 Basically, it pulls order data from S3 bucket and customer database ready for analysis. Data is fake by a Docker container which generate data to push to minio and Postgres database. After landing data onto datawarehouse, dbt is used for data modelling.
 
-I builded my project based on these resources:
+I built my project based on these resources:
 1. https://www.startdataengineering.com/post/dbt-data-build-tool-tutorial/
 2. https://www.startdataengineering.com/post/data-engineering-project-e2e/
 
@@ -17,7 +17,8 @@ I builded my project based on these resources:
 
 ### Data Architecture
 
-![Architecture](image/dbt_project.png)
+<img src="images/dbt_project.png" width="800"/>
+
 
 
 ## Prerequisites
@@ -43,9 +44,10 @@ Directions or anything needed before running the project.
 
 ## Lessons Learned
 
-Based on this post(image/dbt_project.png), I created this project and learned so many things.
+I learned so many things during building this project
+
 1. Structure a data project properly
-It's hard, extremely for a very first project. I did not how to start. By following through the post, I understood the purpose of each component and best practices for a data project
+It's hard, extremely for a very first project. I did not how to start.
 
 2. Orchestrate tasks with Airflow
 It was totally overwhelming when I started with Airflow. However, jumping to construct a dag from scratch, I gradually got the idea how things works.
