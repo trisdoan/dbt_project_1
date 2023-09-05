@@ -17,7 +17,7 @@ I built my project based on these resources:
 
 ### Data Architecture
 
-<img src="images/dbt_project.png"/>
+<img src="image/dbt_project.png"/>
 
 
 
