@@ -59,5 +59,5 @@ It was totally overwhelming when I started with Airflow. However, jumping to con
 ## Contact
 
 Please feel free to contact me if you have any questions at: 
-1. Linkedln: 
+1. Linkedln: www.linkedin.com/in/trisdoan
 2. Email: doanminhtri8183@gmail.com
