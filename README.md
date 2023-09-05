@@ -1,12 +1,15 @@
 ## Overview
 
-Here you want to write a short overview of the goals of your project and how it works at a high level. If possible, include one or two images of the end product and architecture diagram (see examples below). diagrams.net is a great tool for creating architecture diagrams.
+The goal of the project is to learn how to run a proper batch data pipeline (ELT pattern)
+1. Orchestrate pipeline with Airflow
+2. Data modelling with DBT (Kimball Approach)
+3. Run data components on cloud with Terrform
 
-It is a Batch project which I learned from this blog: https://www.startdataengineering.com/
+Basically, it pulls order data from S3 bucket and customer database ready for analysis. Data is fake by a Docker container which generate data to push to minio and Postgres database. After landing data onto datawarehouse, dbt is used for data modelling.
 
-The goal of the project is to learn how to run a proper batch data pipeline.
-
-Basically, how it works at a high level
+I builded my project based on these resources:
+1. https://www.startdataengineering.com/post/dbt-data-build-tool-tutorial/
+2. https://www.startdataengineering.com/post/data-engineering-project-e2e/
 
 ### Data Visualization
 
@@ -14,31 +17,45 @@ Basically, how it works at a high level
 
 ### Data Architecture
 
-![Example architecture image](example-architecture.png)
+![Architecture](image/dbt_project.png)
 
-If you decide to include this, you should also talk a bit about why you chose the architecture and tools you did for this project.
 
 ## Prerequisites
 
 Directions or anything needed before running the project.
 
-- Prerequisite 1
-- Prerequisite 2
-- Prerequisite 3
+- Github
+- Terraform
+- AWS Account
+- AWS CLI installed and configured
+- Docker with at least 4GB of RAM and Docker Compose v1.27.0 or later
 
 ## How to Run This Project
 
-Replace the example step-by-step instructions with your own.
-
-1. Install x packages
-2. Run command: `python x`
-3. Make sure it's running properly by checking z
-4. To clean up at the end, run script: `python cleanup.py`
+1. git clone https://github.com/trisdoan/dbt_project_1.git
+2. cd dbt_project_1
+3. make tf-init
+4. make infra-up
+5. make cloud-airflow (to port forward airflow on cloud to local machine)
+6. go to http://localhost:8080/ to trigger dag
+7. make cloud-metabase (to port forward metabase on cloud to local machine)
+8. make infra-down to destroy data component
 
 ## Lessons Learned
 
-It's good to reflect on what you learned throughout the process of building this project. Here you might discuss what you would have done differently if you had more time/money/data. Did you end up choosing the right tools or would you try something else next time?
+Based on this post(image/dbt_project.png), I created this project and learned so many things.
+1. Structure a data project properly
+It's hard, extremely for a very first project. I did not how to start. By following through the post, I understood the purpose of each component and best practices for a data project
+
+2. Orchestrate tasks with Airflow
+It was totally overwhelming when I started with Airflow. However, jumping to construct a dag from scratch, I gradually got the idea how things works.
+
+3. Utilize Terraform to run project on AWS
+
+4. Use DBT for data modelling
 
 ## Contact
 
-Please feel free to contact me if you have any questions at: LinkedIn, Twitter
+Please feel free to contact me if you have any questions at: 
+1. Linkedln: 
+2. Email: doanminhtri8183@gmail.com
