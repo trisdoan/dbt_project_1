@@ -7,19 +7,21 @@ The goal of the project is to learn how to run a proper batch data pipeline (ELT
 
 Basically, it pulls order data from S3 bucket and customer database ready for analysis. Data is fake by a Docker container which generate data to push to minio and Postgres database. After landing data onto datawarehouse, dbt is used for data modelling.
 
-I built my project based on these resources:
-1. https://www.startdataengineering.com/post/dbt-data-build-tool-tutorial/
-2. https://www.startdataengineering.com/post/data-engineering-project-e2e/
-
-### Data Visualization
-
-![Example dashboard image](example-dashboard.png)
 
 ### Data Architecture
 
 <img src="image/dbt_project.png"/>
 
 
+1. Extract customer data from OLTP database and load into to the data warehouse. Order data is pulled from S3 bucket
+
+2. Implement dimensional approach with DBT
+
+3. Serve data with Metabase
+
+4. Orchestrate data pipeline with Airflow
+
+<img src="image/dag.png"/>
 
 ## Prerequisites
 
@@ -55,6 +57,9 @@ It was totally overwhelming when I started with Airflow. However, jumping to con
 3. Utilize Terraform to run project on AWS
 
 4. Use DBT for data modelling
+
+Reference
+1. Machado, J. K. (2022, March 18). End-to-end data engineering project - batch edition. Start Data Engineering, from https://www.startdataengineering.com/post/data-engineering-project-e2e/
 
 ## Contact
 
